@@ -40,6 +40,10 @@ Lakukan yang terbaik. Perbaiki issue yang ada. Tambahkan fitur dan lain-lain.
 
 Pastikan kode anda bekerja dengan benar sebelum menguploadnya :grinning:.
 
+Dan yang tidak kalah penting, lakukan perbaikan di line-line code yang berhubungan dengan perbaikan saja,
+agar apa yang anda lakukan dapat langsung di lihat oleh orang lain, jangan melakukan perubahan dari awal file 
+sampai akhir file, termasuk membenahi spaci dan lain-lain, ini akan membingungkan dan menghambat pull reguest anda untuk di setujui.
+
 ### 6. Update CHANGELOG.
 
 Edit file CHANGELOG.md untuk memasukkan perubahan anda. Sisipkan baris pada CHANGELOG sesuai dengan perubahan yang anda lakukan. Baris yang anda masukkan harus berbentuk seperti
