@@ -9,6 +9,10 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
+use common\models\EducationCrud;
+use common\models\EducationSearch;
+use common\models\Education;
+use yii\filters\VerbFilter;
 
 
 /**
@@ -28,10 +32,16 @@ class ProfileController extends Controller
             'access' => [
                 'class' => AccessControl::className(),
                 'rules' => [
-                    ['allow' => true, 'actions' => ['index','update-profile'], 'roles' => ['@']],
+                    ['allow' => true, 'actions' => ['index','update-profile', 'add-edu', 'update-edu', 'delete-edu', 'educations'], 'roles' => ['@']],
                     ['allow' => true, 'actions' => ['show'], 'roles' => ['?', '@']],
                 ],
             ],
+			'verbs' => [
+				'class' => VerbFilter::className(),
+				'actions' => [
+        			'delete-edu' => ['post'],
+				],
+			],
         ];
     }
 
@@ -65,6 +75,69 @@ class ProfileController extends Controller
             'profile' => $profile,
         ]);
     }
+    
+    public function actionEducations($id)
+    {
+    	
+    	$educations = EducationSearch::searchByUser($id);
+    	if (count($educations) <= 0) {
+    		throw new NotFoundHttpException('The requested page does not exist.');
+    	}
+    	return $this->render('mainEducations', [
+    			'educations' => $educations,
+    			'id' => $id
+    	]);
+    }
+    
+    public function actionAddEdu($id) {
+    	if ($id === null) {
+    		throw new NotFoundHttpException('The requested page does not exist.');
+    	}
+    	
+    	$model = new EducationCrud();
+    	$model->user_id = $id;
+    
+    	if ($model->load(Yii::$app->request->post()) && $model->save()) {
+    		Yii::$app->getSession()->setFlash('success', 'Education have been saved.');
+    		return $this->redirect(['educations', 'id' => $id]);
+    	}
+    	
+    	return $this->render('createEducation', [
+    			'model' => $model,
+    			'id' => $id
+    	]);
+    }
+    
+    public function actionUpdateEdu($id) {
+    	if (empty($id) && empty($uid)) {
+    		throw new NotFoundHttpException('The requested page does not exist.');
+    	}
+    	 
+    	$model = Education::findOne($id);
+    	$uid = $model->user->id;
+    
+    	if ($model->load(Yii::$app->request->post()) && $model->save()) {
+    		Yii::$app->getSession()->setFlash('success', 'Education have been updated.');
+    		$model->refresh();
+    		return $this->redirect(['educations', 'id' => $uid]);
+    	}
+    	 
+    	return $this->render('createEducation', [
+    			'model' => $model,
+    			'id' => $id
+    	]);
+    }
+    
+    public function actionDeleteEdu($id)
+    {
+    	$model = Education::findOne($id);
+    	$uid = $model->user->id;
+    	
+    	$model->delete();
+    	Yii::$app->getSession()->setFlash('success', 'Education have been deleted.');
+    	return $this->redirect(['educations', 'id'=>$uid]);
+    }
+    
 
     /**
      * Updates an existing profile.
@@ -86,7 +159,7 @@ class ProfileController extends Controller
             return $this->refresh();
         }
 
-        return $this->render('_form', [
+        return $this->render('_formProfile', [
             'profile' => $profile,
         ]);
     }
